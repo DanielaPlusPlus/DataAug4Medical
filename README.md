@@ -14,7 +14,7 @@ Datasets:
 
 ISIC datastes come from the [International Skin Imaging Collaboration challenge](https://challenge.isic-archive.com/data/). 
 
-Synapse, GlaS and MoNuSeg datasets come from the [repo of TransUnet]([https://github.com/Beckschen/TransUNet/tree/main/datasets](https://github.com/Beckschen/TransUNet)) 
+Synapse, GlaS and MoNuSeg datasets come from the [repo of TransUnet](https://github.com/Beckschen/TransUNet/tree/main/datasets](https://github.com/Beckschen/TransUNet)
 
 Thanks the authors of TransUnet for their sharing.
 
