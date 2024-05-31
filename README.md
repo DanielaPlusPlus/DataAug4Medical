@@ -7,3 +7,11 @@ Danyang Sun., Fadi Dornaika., & Jinan Charafeddine. (2024). LCAMix: Local-and-co
 
 
 https://doi.org/10.1016/j.inffus.2024.102484
+
+
+Datasets:
+=============================
+
+ISIC datastes come from the [International Skin Imaging Collaboration challenge](https://challenge.isic-archive.com/data/). 
+
+
