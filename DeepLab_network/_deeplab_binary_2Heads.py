@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 import numpy as np
-from .utils_binary_3Heads_1Decoder import _SimpleSegmentationModel
+from .utils_binary_2Heads import _SimpleSegmentationModel
 
 
 __all__ = ["DeepLabV3"]
@@ -56,26 +56,26 @@ class DeepLabHeadV3Plus(nn.Module):
             nn.Conv2d(256, 3, 1) #num_class=3 for reconstruction
         )
 
-        self.SP = self.SuperpixelPooling
+        # self.SP = self.SuperpixelPooling
         self.local_cls_head = nn.Linear(304, 64)  # local projection head for cosface classification head
 
         self._init_weight()
 
-    def SuperpixelPooling(self, x, SuperP_mask):
-        # print(x.shape)#torch.Size([32, 256, 32, 32])
-        SPAttention_fea_batch = []
-        for sp in range(x.shape[0]):
-            mask_value = np.unique(SuperP_mask[sp])
-            x_sp = x[sp].reshape(x.shape[2], x.shape[3], x.shape[1])
-            avgpool = []
-            for v in mask_value:
-                avgpool.append(x_sp[SuperP_mask[sp]==v].mean(0))
-            avgpool = torch.stack(avgpool)
-            # avgpool_sa = self.SA(avgpool) #get vectors
-            SPAttention_fea_batch.append(avgpool)
-        return SPAttention_fea_batch
+    # def SuperpixelPooling(self, x, SuperP_mask):
+    #     # print(x.shape)#torch.Size([32, 256, 32, 32])
+    #     SPAttention_fea_batch = []
+    #     for sp in range(x.shape[0]):
+    #         mask_value = np.unique(SuperP_mask[sp])
+    #         x_sp = x[sp].reshape(x.shape[2], x.shape[3], x.shape[1])
+    #         avgpool = []
+    #         for v in mask_value:
+    #             avgpool.append(x_sp[SuperP_mask[sp]==v].mean(0))
+    #         avgpool = torch.stack(avgpool)
+    #         # avgpool_sa = self.SA(avgpool) #get vectors
+    #         SPAttention_fea_batch.append(avgpool)
+    #     return SPAttention_fea_batch
 
-    def forward(self, feature, train=False, superpixel_map=None): #OrderredDict
+    def forward(self, feature, train=False): #OrderredDict
         low_level_feature = self.project( feature['low_level'] ) #(bsz,256,56,56) -> (bsz,48,56,56)
         output_feature = self.aspp(feature['out']) #(bsz,2048,14,14) -> (bsz,256,14,14)
         output_feature = F.interpolate(output_feature, size=low_level_feature.shape[2:], mode='bilinear', align_corners=False)
@@ -84,20 +84,21 @@ class DeepLabHeadV3Plus(nn.Module):
             ffea = torch.cat( [ low_level_feature, output_feature ], dim=1 )
             # print(ffea.shape) #torch.Size([bsz, 304, 56, 56])
             recontrust_out = self.Recontrustion(ffea)
-            ffea_224 = F.interpolate(ffea, size=[224,224], mode='bilinear', align_corners=False)  # (2,150,224,224)
-            SPAttention_fea_batch = self.SP(ffea_224, superpixel_map)  # list(32*[n, 256])
-            SurPLocalCls_batch = []
-            for sp in range(len(SPAttention_fea_batch)):
-                x_locals_out_sp = []
-                for tk in range(SPAttention_fea_batch[sp].shape[0]):
-                    cls_out = self.local_cls_head(SPAttention_fea_batch[sp][tk])
-                    # print(cls_out.shape)
-                    x_locals_out_sp.append(cls_out)
-                x_locals_out_sp = torch.stack(x_locals_out_sp)
-                SurPLocalCls_batch.extend(x_locals_out_sp)
-            SurPLocalCls_batch = torch.stack(SurPLocalCls_batch)
-            """output: seg_pred; reconstruction out; local preds for superpixels"""
-            return seg_out, recontrust_out, SurPLocalCls_batch
+            return seg_out, recontrust_out
+            # ffea_224 = F.interpolate(ffea, size=[224,224], mode='bilinear', align_corners=False)  # (2,150,224,224)
+            # SPAttention_fea_batch = self.SP(ffea_224, superpixel_map)  # list(32*[n, 256])
+            # SurPLocalCls_batch = []
+            # for sp in range(len(SPAttention_fea_batch)):
+            #     x_locals_out_sp = []
+            #     for tk in range(SPAttention_fea_batch[sp].shape[0]):
+            #         cls_out = self.local_cls_head(SPAttention_fea_batch[sp][tk])
+            #         # print(cls_out.shape)
+            #         x_locals_out_sp.append(cls_out)
+            #     x_locals_out_sp = torch.stack(x_locals_out_sp)
+            #     SurPLocalCls_batch.extend(x_locals_out_sp)
+            # SurPLocalCls_batch = torch.stack(SurPLocalCls_batch)
+            # """output: seg_pred; reconstruction out; local preds for superpixels"""
+            # return seg_out, recontrust_out, SurPLocalCls_batch
         else:
             return seg_out # binary, 此处不能添加add sigmoid, 对应生成utils_binary_base.py中 seg out 输出(bsz, num_class, 56, 56)
     
