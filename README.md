@@ -1,1 +1,3 @@
-# DA4skin_lesion_seg
+# LCAMix
+
+Danyang Sun., Fadi Dornaika., & Jinan Charafeddine. (2024). LCAMix: Local-and-contour aware grid mixing based data augmentation for medical image segmentation. Information Fusion, 102484.
