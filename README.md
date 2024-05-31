@@ -10,7 +10,7 @@ https://doi.org/10.1016/j.inffus.2024.102484
 
 In this work, we introduce LCAMix, a novel data augmentation approach designed for medical image segmentation. LCAMix operates by blending two images and their segmentation masks based on their superpixels, incorporating a local-and-contour-aware strategy. The training process on augmented images adopts two auxiliary pretext tasks: firstly, classifying local superpixels in augmented images using an adaptive focal margin, leveraging segmentation ground truth masks as prior knowledge; secondly, reconstructing the two source images using mixed superpixels as mutual masks, emphasizing spatial sensitivity. Our method stands out as a simple, one-stage, model-agnostic, and plug-and-play data augmentation solution applicable to various segmentation tasks. Notably, it requires no external data or additional models. Extensive experiments validate its superior performance across diverse medical segmentation datasets and tasks. 
 
-
+![image](https://github.com/DanielaPlusPlus/SAFuse/blob/main/framework.png)
 
 
 Datasets:
